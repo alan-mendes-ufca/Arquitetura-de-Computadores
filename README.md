@@ -38,7 +38,7 @@
   - `execute`: executa a operação utilizando o ALU
 
 - Alguns materiais adicionam outros dois passo, sigficativamente mais lentos que os anteriores:
-  - `memory`: transferência de dados entre diferentes níveis de memória (SDD -> RAM -> CACHE)
+  - `memory`: transferência de dados entre diferentes níveis de memória (SDD -> RAM -> CACHE -> Register)
   - `writeback`: armazena os resultados no próprio processo
 
 ### O que é `Clock`?
@@ -63,6 +63,29 @@ Instr 2:│        │ FETCH  │ DECODE │EXECUTE │ WRITE  │
 Instr 3:│        │        │ FETCH  │ DECODE │EXECUTE │ 
 Instr 4:│        │        │        │ FETCH  │ DECODE │
 ```
+
+---
+
+## Hierarquia de memória
+- Um princípio básico: quanto mais rápida uma memória é, mais caro também é seu custo. Por isso, no sistema computacional, existem diferentes níveis de memória:
+  1. Registradores: memória muito rápida e pequena, responsável por armazenar dados específicos e instruções.
+
+  2. Memória CACHE: otimização que evita acessos a memória principal
+      - L1: mais rápida e menor
+      - L2: maior e mais lenta, opção direta quando não se tem mais espaço na L1
+      -  L3: ainda maior e mais lenta, utilizada quando se falta memória em L1 e L2. A L3 ainda tem uma função mais específica: é utilizada para compartilhar dados entre núcleos (Multicore)
+
+  3. Memória RAM (Random Accsess Memory) ou Principal: responsável pro guardar programar em execução.
+      - Como as duas anteriores, a memória RAM é volátil, ou seja, os dados não ficam salvos em seu escopo: ao desligar o computador seu uso é zerado e sua capacidade se mantém intacta.
+  
+  4. Memória de Armazenamento ou Segundária: aqui nos referimos aos HDs e SSDs, responsáveis por armazenar dados brutos (hypermídea) e o próprio Sistema Operacional.
+      - Não volátil: matém os dados gravados, mesmo sem energia
+
+  5. Bônus: Memória Virtual: o processador aloca parte da memória segundária para servir de memória RAM.
+      - Acontece quando a memória primária disponível no sistema se esgoda e é necessário concluir a tarefa.
+      - O processamento fica considerávelmente mais lento, atrasando ciclos de clock e outros processos, mesmo assim ainda é um recursos muito útil em sistemas de baixo custo.
+
+- No estágio de processamento `memory`, do processador, ocorre exatamente essa transferências de dados e instruções entre níveis diferentes de memória: SDD -> Memória RAM -> Memória Cache -> Resgistradores -> a tarefa é processada -> etapa de `writeback` os resultados são armazenados no próprio processo -> (CACHE) -> RAM -> SDD 
 
 ---
 
