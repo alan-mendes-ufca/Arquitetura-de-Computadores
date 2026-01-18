@@ -168,6 +168,23 @@ E **dados armazenados de forma sequêncial desempenham melhor quanto a busca pel
 ---
 
 ### 9) Defina hit ratio e exemplifique
+- Percentual de hit: é a proporção de acessos ao Cache que encontraram o dado desejado.
+
+- `Hit Ration = Total de Cache Hit / Total de acessos`
+
+```
+Acessos:    [A] [B] [C] [A] [D] [B] [E] [A] [B] [C]
+No cache?:  [❌] [❌] [❌] [✓] [❌] [✓] [❌] [✓] [✓] [❌]
+             (miss)(miss)(miss)(hit)(miss)(hit)(miss)(hit)(hit)(miss)
+
+HT = 4 / 10 = 0,4 * 100 = 40%
+```
+
+- O HT serve de métrica para verificar se o cache está funcionando adequadamente:
+   - `HT > 90%` -> muito eficiênte
+   - `HT 70-90%` -> bom desempenho
+   - `HT < 50%` -> Cache pouco eficiênte
+   
 
 ---
 
@@ -177,30 +194,117 @@ E **dados armazenados de forma sequêncial desempenham melhor quanto a busca pel
 
 ### 11) Faça um exemplo do funcionamento do mapeamento direto
 
+```markdown
+1. O processador solicita ao cache determinado dado de TAG 000x555
+2. Os circuitos de mapeamento direto fazem o cálculo de seu endereço (posição = número do block MOD número de linhas)
+3. Ao encontrar essa posição o cache faz uma verificação de conteúdo, ou seja, valida se está armazenado o dado de TAG correspondente
+4. Caso aquela TAG seja = 000x555 temos um `cache hit`, pois o dado já estava contido no cache, otimizando o que seria uma busca na memória principal
+5. Se a TAG não for correspondente ocorre um `cache miss`, onde o cache precisará acessar e copiar o bloco de memória que contém aquele dado
+6. A susbstituição é feita sem critério e de forma automática
+```
+
 ---
 
 ### 12) Faça um exemplo do funcionamento do mapeamento associativo
-
+```markdown
+1. O processador solicita ao cache determinado dado de TAG 000x555
+2. Os circuitos de mapeamento associativo fazem uma busca de forma paralela pelo conteúdo correspondente
+4. Caso aquela TAG esteja em uma das linhas um sinal é devolvido informando a posição e então temos um `cache hit`, pois o dado já estava contido no cache, otimizando o que seria uma busca na memória principal
+5. Se a TAG não for correspondente ocorre um `cache miss`, onde o cache precisará acessar e copiar o bloco de memória que contém aquele dado
+6. A susbstituição é feita baseando-se em uma política de substituição: Least Frequent Used, Least Recent Used, First In First Out, Random
+```
 ---
 
 ### 13) Faça um exemplo do funcionamento do mapeamento associativo por conjunto
 
+```markdown
+1. O processador solicita ao cache determinado dado de TAG 000x555
+2. Os circuitos de mapeamento direto fazem o cálculo para desccobrir o conjunto que inclui aquele dado (conjunto = número do block MOD número de conjuntos)
+3. Ao encontrar ao encontrar o conjunto o cache faz uma verificação se essa TAG está inclusa em uma das linhas armazenadas
+4. Caso esteja temos um `cache hit`, pois o dado já estava contido no cache, otimizando o que seria uma busca na memória principal
+5. Se a TAG não for correspondente ocorre um `cache miss`, onde o cache precisará acessar e copiar o bloco de memória que contém aquele dado
+6. A susbstituição é feita baseando-se em uma política de substituição: Least Frequent Used, Least Recent Used, First In First Out, Random
+```
+
 ---
 
 ### 14) Defina algoritmos de substituição e em quais mapeamentos eles são utilizados
+- Least Frequent Used, Least Recent Used, First In First Out, Random.
 
 ---
 
 ### 15) Defina e exemplifique o funcionamento do algoritmo de substituição LRU - Least Recently Used
+- O algoritmo de substituição LRU(Least Recently Used) matém uma rotina de classificação que se baseia no uso de um determinado bloco de memória. Entretanto, é uma política muito custosa justamente por ter que reclassificar a cada escrita no Cache.
+
+```
+Estado inicial
+Fila (do menos usado para o mais usado): [A, B, C, D]
+
+Linha A: 00x555
+Linha B: 00x556
+Linha C: 00x557
+Linha D: 00x558
+
+---
+
+Processo
+1. O processador solicita a memória cache o endereço: 00x559
+2. Esse bloco não está armazenado na memória cache, ocorre um cache hit
+3. Após buscar esse dado na memória RAM e realizar o cálculo para determinar o conjunto que o novo bloco será guardado, encontra-se um dilema. Assim, o cache rodará a política de substituíção.
+4. A Fila é validada e constata-se que o bloco com menos solicitações é o D.
+5. Por fim, o bloco D (00x558) será substituído pelo recém buscado 00x559.
+
+---
+
+Estado final
+Fila (do menos usado para o mais usado): [A, B, D, C]
+
+Linha A: 00x555
+Linha B: 00x556
+Linha C: 00x557
+Linha D: 00x559 [Novo]
+```
 
 ---
 
 ### 16) Defina e exemplifique o funcionamento do algoritmo de substituição Pseudo LRU - Least Recently Used
+- O algoritmo de subsituição Pseudo Least Recently Used mantém o mesmo objetivo: reconhecer o bloco de memória menos utilizado. Porém, como dito anteriormente, a rotina de classificação é muito cara em termos de desempenho, por isso o Pseudo LRU se difere do LRU tradicional. Ele resolve o problema por meio de bits indicadores de uso, então, ao entrar um conjunto, a linha que não tiver o bit que indica uso recente será substituída.
+
+- Os bit de acesso são resetados a cada x ciclos de clock
+- Se for preciso armazenar um dado em determinado conjunto(set) os bits de acesso de todos as linhas estão acesos uma política de substituíção segundário é acionada para desempatar (FIFO, Random, etc).
+
+```
+Estado inicial
+
+Linha A: 00x555 | [1]
+Linha B: 00x556 | [1]
+Linha C: 00x557 | [1]
+Linha D: 00x558 | [0]
+
+---
+
+Processo
+1. O processador solicita a memória cache o endereço: 00x559
+2. Esse bloco não está armazenado na memória cache, ocorre um cache hit
+3. Após buscar esse dado na memória RAM e realizar o cálculo para determinar o conjunto que o novo bloco será guardado, encontra-se um dilema. Assim, o cache rodará a política de substituíção.
+4. A linha que tiver o bit de acesso desligado será substituído.
+5. Por fim, o bloco D (00x558) será substituído pelo recém buscado 00x559.
+
+---
+
+Estado final
+
+Linha A: 00x555 | [1]
+Linha B: 00x556 | [1]
+Linha C: 00x557 | [1]
+Linha D: 00x559 [Novo] | [0]
+```
 
 ---
 
 ### 17) No contexto de sistemas com memória cache, quais são as duas principais políticas utilizadas para atualizar a memória principal após uma operação de escrita (Write Policy)? Defina cada uma
-
+- Write through: assim que a memória cache é atualizada com o resultado de uma atividade realizada pelo processador, um acesso à memória principal também é feito para atualizar o bloco de memória correspodente.
+- Write back: a memória cace é atualizada e um `dirty bit` é acesso (identificando que ocorreu uma alteração), a memória principal se matém com o valor antigo até que seja solicitado a substituíção daquele bloco de memória que foi alterado.
 ---
 
 ### 18) Dado a questão acima, exemplifique cada uma das politicas,

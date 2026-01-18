@@ -157,5 +157,25 @@ Instr 4:│        │        │        │ FETCH  │ DECODE │
             └─────┴──────┘  └─────┴──────┘  └─────┴──────┘  └─────┴──────┘
     ```
 
-
+ 
 ---
+
+## Código de Hamming
+- Método de correção e detecção de erros em transmissão de dados.
+- O código adiciona bits de baridade em posições específicas, **pontências de 2**: 1, 2, 4, ...
+
+- Quantidade de bits de paridade = `2^r >= m + r + 1`
+  - r = bits de paridade
+  - m = total de bits do dado
+
+- Cada bit de paridade valida as posições cuja representação binária tem um "1" em determinada posição. REGRA: `o bit de pariade na posição 2^k valida todas as posições onde o k-ésimo bit é 1 na representação binária`.
+  - P1 = 2⁰ = 0 -> xxx1
+  - P2 = 2¹ = 1 -> xx1x
+  - P4 = 2² = 2 -> x1xx
+  - P8 = 2³ = 3 -> 1xxx
+
+- Exemplo
+```
+Posição:  1  2  3  4  5  6  7
+Tipo:     P1 P2 D1 P4 D2 D3 D4
+```

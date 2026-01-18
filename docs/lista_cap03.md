@@ -81,15 +81,16 @@ Depois, ao receber um sinal eletríco do componente de i/o ele retorna para a ex
 
 19) Defina barramento de dados e o que ele limita
 - Transmitir dados entre os componentes
-- CPU <-> Memória <-> I/O
+- Limitam a valocidade de leitura/escrita da memória principal
 
 20) Defina barramento de endereço e o que ele limita
 - Transpote de endereços que indicam onde os dados serão lidos ou escritos
-- CPU -> RAM
+- Limita quantos locais diferentes podem ser acessados
 
 21) Defina o barramento de controle e qual é sua função principal
 na interconexão do computador
 - Coordena as operações do sistema: leitura, escrita, clock e interrupções
+- Quantidade de operações coordenadas
 
 22) Por que a fase de busca da instrução deve sempre vir antes da
 fase de execução da instrução
